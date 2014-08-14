@@ -1,4 +1,6 @@
 apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 repositories {
     mavenCentral()
@@ -10,4 +12,90 @@ dependencies {
     compile 'org.ajoberstar:grgit:0.2.3'
     compile 'org.apache.httpcomponents:httpclient:4.3.5'
     testCompile 'com.android.tools.build:gradle:0.11.0'
+}
+
+version = "0.1"
+
+ext {
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+    artifactId = 'proguard-please'
+}
+
+group = 'org.chalup'
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from groovydoc
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+if (project.hasProperty("signing.keyId")) {
+    signing {
+        sign configurations.archives
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            beforeDeployment { deployment -> signing.signPom(deployment) }
+
+            if (project.hasProperty('sonatypeUsername')) {
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+            }
+            uniqueVersion = false
+
+            pom.project {
+                parent {
+                    groupId 'org.sonatype.oss'
+                    artifactId 'oss-parent'
+                    version '7'
+                }
+
+                name 'Gradle proguard-please plugin'
+                packaging 'jar'
+                description 'A Gradle plugin for Android application projects that ensures ProGuard will be configured properly for all compile dependencies.'
+                url 'https://github.com/chalup/proguard-please'
+
+                scm {
+                    url 'https://github.com/chalup/proguard-please'
+                    connection 'scm:git:git://github.com/chalup/proguard-please.git'
+                    developerConnection 'scm:git:git://github.com/chalup/proguard-please.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'chalup'
+                        name 'Jerzy Chalupski'
+                    }
+                }
+            }
+        }
+    }
 }
