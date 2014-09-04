@@ -1,3 +1,7 @@
+ON HOLD
+=======
+[Hugo Visser](https://twitter.com/botteaap) came up with a [simpler way to achieve the same thing.](https://bitbucket.org/littlerobots/squadleader)
+
 ProGuard, please
 ================
 Manual ProGuard configuration is not a pleasant task. It requires a lot of time, patience and strong Google-fu to search dark corners of Internet for magic incantations that make ProGuard happy and don't screw up your build. A bottle of alcoholic beverage also comes in handy.
